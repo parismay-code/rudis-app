@@ -1,0 +1,71 @@
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - './nginx.conf:/etc/nginx/nginx.conf'
+      - './nginx/error.log:/etc/nginx/error_log.log'
+      - './nginx/cache/:/etc/nginx/cache'
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - rudis_network
+  backend:
+    build:
+      context: backend
+      target: production
+    image: rudis/api
+    container_name: rudis_api
+    ports:
+      - '${BACKEND_PORT:-9000}:9000'
+    env_file:
+      - '.env'
+    depends_on:
+      - db
+      - redis
+    networks:
+      - rudis_network
+  frontend:
+    build:
+      context: frontend
+      target: production
+    image: rudis/react
+    container_name: rudis_react
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+  db:
+    image: postgres:latest
+    container_name: rudis_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+  redis:
+    image: redis:latest
+    container_name: rudis_redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+networks:
+  rudis_network:
+    driver: bridge

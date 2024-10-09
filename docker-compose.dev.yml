@@ -1,0 +1,80 @@
+services:
+  backend:
+    build:
+      context: backend
+      target: development
+    command: npm run start:dev
+    develop:
+      watch:
+        - action: 'sync+restart'
+          path: './backend'
+          target: '/src'
+          ignore:
+            - 'node_modules/'
+    image: rudis/dev-api
+    container_name: rudis_api
+    volumes:
+      - './backend/src:/usr/src/app/src'
+      - '/usr/src/app/node_modules'
+    ports:
+      - '${BACKEND_PORT:-9000}:9000'
+    env_file:
+      - '.env'
+    depends_on:
+      - db
+      - redis
+    networks:
+      - rudis_network
+  frontend:
+    build:
+      context: frontend
+      target: development
+    command: npm run dev
+    develop:
+      watch:
+        - action: 'sync+restart'
+          path: './frontend'
+          target: '/index.html'
+          ignore:
+            - 'node_modules/'
+    image: rudis/dev-react
+    container_name: rudis_react
+    volumes:
+      - './frontend/src:/usr/src/app/src'
+      - '/usr/src/app/node_modules'
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+  db:
+    image: postgres:latest
+    container_name: rudis_db
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+  redis:
+    image: redis:latest
+    container_name: rudis_redis
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    env_file:
+      - '.env'
+    networks:
+      - rudis_network
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+networks:
+  rudis_network:
+    driver: bridge
