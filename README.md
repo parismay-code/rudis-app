@@ -23,7 +23,8 @@
 
 ### Run application in development environment (with watcher)
 
-1. Run docker-compose -f docker-compose.dev.yml up --build -d
+1. Run docker-compose -f docker-compose.dev.yml build
+1. Run docker-compose -f docker-compose.dev.yml up --watch
 
 - If application is running in development environment, any submodule changes will automatically restart docker
   containers

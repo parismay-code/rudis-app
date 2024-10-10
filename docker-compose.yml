@@ -18,10 +18,9 @@ services:
       target: production
     image: rudis/api
     container_name: rudis_api
+    env_file: '.env'
     ports:
       - '${BACKEND_PORT:-9000}:9000'
-    env_file:
-      - '.env'
     depends_on:
       - db
       - redis
@@ -33,10 +32,9 @@ services:
       target: production
     image: rudis/react
     container_name: rudis_react
+    env_file: '.env'
     ports:
       - '${FRONTEND_PORT:-3000}:3000'
-    env_file:
-      - '.env'
     networks:
       - rudis_network
   db:
@@ -46,8 +44,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
-    env_file:
-      - '.env'
+    env_file: '.env'
     networks:
       - rudis_network
   redis:
@@ -57,8 +54,7 @@ services:
       - redis_data:/data
     ports:
       - '${REDIS_PORT:-6379}:6379'
-    env_file:
-      - '.env'
+    env_file: '.env'
     networks:
       - rudis_network
 volumes:
