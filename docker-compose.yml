@@ -6,7 +6,6 @@ services:
       target: production
     image: rudis/react
     container_name: rudis_react
-    env_file: '.env.production'
     ports:
       - '80:80'
     depends_on:
