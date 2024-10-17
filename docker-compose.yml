@@ -1,18 +1,20 @@
 services:
-  nginx:
-    image: nginx:latest
-    volumes:
-      - './nginx.conf:/etc/nginx/nginx.conf'
-      - './nginx/error.log:/etc/nginx/error_log.log'
-      - './nginx/cache/:/etc/nginx/cache'
+  frontend:
+    restart: unless-stopped
+    build:
+      context: frontend
+      target: production
+    image: rudis/react
+    container_name: rudis_react
+    env_file: '.env.production'
     ports:
       - '80:80'
     depends_on:
       - backend
-      - frontend
     networks:
       - rudis_network
   backend:
+    restart: unless-stopped
     build:
       context: backend
       target: production
@@ -26,18 +28,8 @@ services:
       - redis
     networks:
       - rudis_network
-  frontend:
-    build:
-      context: frontend
-      target: production
-    image: rudis/react
-    container_name: rudis_react
-    env_file: '.env.production'
-    ports:
-      - '${FRONTEND_PORT:-3000}:3000'
-    networks:
-      - rudis_network
   db:
+    restart: unless-stopped
     image: postgres:latest
     container_name: rudis_db
     volumes:
@@ -48,6 +40,7 @@ services:
     networks:
       - rudis_network
   redis:
+    restart: unless-stopped
     image: redis:latest
     container_name: rudis_redis
     volumes:
